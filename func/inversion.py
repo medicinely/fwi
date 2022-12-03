@@ -3,7 +3,7 @@ Functions for objective functions to calculate
 the gradiant and residual J
 """
 
-from med.func.propagation import prop2d
+from fwi.func.propagation import prop2d
 import numpy as np
 
 def second_order_derivative_old(p, at, az, ax):
