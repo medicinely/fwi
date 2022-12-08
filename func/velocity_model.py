@@ -2,8 +2,6 @@
 Functions to generate different velocity fields/models
 """
 
-import gstlearn as gl
-from sksparse.cholmod import cholesky
 import scipy as sc
 from scipy.sparse import *
 import numpy as np
@@ -30,6 +28,8 @@ def check_model(v, vmin=2000, vmax=3000, disp=False):
 
 
 def gaussian2d(ranges=[5, 10], variance=1, param=1, nx=[201, 201], mean=0):
+    import gstlearn as gl
+    from sksparse.cholmod import cholesky   
     #Creation of the covariance model (Whittle-Matérn prior)
     model = gl.Model.createFromParam(gl.ECov.BESSEL_K,
                                      param=param,
