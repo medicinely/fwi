@@ -2,7 +2,7 @@
 Functions for 2D wave propagation
 """
 import numpy as np
-import cupy as cp
+# import cupy as cp
 from math import pi, sqrt, exp, sin, cos
 
 
