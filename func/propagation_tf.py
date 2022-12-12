@@ -1,7 +1,6 @@
 """
 Tensorflow functions for 2D wave propagation
 """
-
 import numpy as np
 import tensorflow as tf
 
@@ -23,11 +22,11 @@ def prop2d_tf(vel,pwsrc,at,az,ax,next):
 	nze  = nz + 2*next2
 	nxe  = nx + 2*next2
 	########################################################
-	#										EXTEND MODEL											 #
+	#				    EXTEND MODEL				       #
 	########################################################
 	nze  = nz + 2*next2
 	nxe  = nx + 2*next2
-	vele = tf.Variable(tf.zeros([nze,nxe],dtype="float32"))
+	vele = tf.zeros([nze,nxe],dtype="float32")
  
 	# Central part
 	vele = replace(vele,vel,[next2,nze-next2],[next2,nxe-next2])
@@ -52,14 +51,14 @@ def prop2d_tf(vel,pwsrc,at,az,ax,next):
 	vele = replace(vele,tf.fill([next2, next2], vel[-1,-1]),
 	               [nze-next2,nze],[nxe-next2,nxe])
 	# vele = extend_model(vel,next2)
-  ########################################################
+  	########################################################
 	#
 	########################################################
 	# Shift the source by next
-	p = tf.Variable(tf.zeros([nze,nxe,nt]))
-	pm    = tf.zeros([nze,nxe]) # Previous wave field
+	p_all = tf.zeros([nze,nxe,2])
+	pm = tf.zeros([nze,nxe]) # Previous wave field
+	pp = tf.zeros([nze,nxe])# pp   = p[:,:,it]
 	for it in tf.range(1,nt-1): # From 1 to nt-1
-		pp   = p[:,:,it]
 		fact = (dt*vele[1+nabs:-1-nabs,1+nabs:-1-nabs])**2
 		lapx = (pp[1+nabs:-1-nabs,0+nabs:-2-nabs] - \
 				2.*pp[1+nabs:-1-nabs,1+nabs:-1-nabs] + \
@@ -67,42 +66,47 @@ def prop2d_tf(vel,pwsrc,at,az,ax,next):
 		lapz = (pp[0+nabs:-2-nabs,1+nabs:-1-nabs] - \
 				2.*pp[1+nabs:-1-nabs,1+nabs:-1-nabs] + \
 				pp[2+nabs:-nabs,1+nabs:-1-nabs])*dx2
+
 		asrc = tf.zeros([nze-2*nabs-2,nxe-2*nabs-2],dtype="float32")
-		asrc = tf.Variable(asrc)
 		asrc = replace(asrc,pwsrc[1:-1,1:-1,it],
 		              [next,nze-2*nabs-2-next],
-               		[next,nxe-2*nabs-2-next])#test code
-		# asrc = asrc[next:-next,next:-next].assign(pwsrc[1:-1,1:-1,it])
-		p = replace_3d(p,
-								2.*pp[1+nabs:-1-nabs,1+nabs:-1-nabs] - \
-								pm[1+nabs:-1-nabs,1+nabs:-1-nabs] + \
-								(lapz + lapx + asrc)*fact,
-								[1+nabs,nze-1-nabs],[1+nabs,nxe-1-nabs],it+1
-								)#test code
-		pm = pp	
+               		[next,nxe-2*nabs-2-next])
+
+		p_next = tf.zeros([nze,nxe])
+		p_next = replace(p_next,
+						2.*pp[1+nabs:-1-nabs,1+nabs:-1-nabs] - \
+						pm[1+nabs:-1-nabs,1+nabs:-1-nabs] + \
+						(lapz + lapx + asrc)*fact,
+						[1+nabs,nze-1-nabs],[1+nabs,nxe-1-nabs])
 		# One-way equation (bottom part)
-		p = replace_3d(p,
-					p[nze-1-nabs:nze,:nxe,it] - \
+		p_next = replace(p_next,
+					pp[nze-1-nabs:nze,:nxe] - \
 					vele[nze-1-nabs:nze,:nxe]*dt/dz* \
-					(p[nze-1-nabs:nze,:nxe,it]-p[nze-2-nabs:nze-1,:nxe,it]),
-					[nze-1-nabs,nze],[0,nxe],it+1)
+					(pp[nze-1-nabs:nze,:nxe]-pp[nze-2-nabs:nze-1,:nxe]),
+					[nze-1-nabs,nze],[0,nxe])
 		# One-way equation (top part)
-		p = replace_3d(p,p[:1+nabs,:nxe,it] + \
-			vele[:1+nabs,:nxe]*dt/dz* \
-			(p[1:2+nabs,:nxe,it]-p[:1+nabs,:nxe,it]),
-			[0,1+nabs],[0,nxe],it+1)
+		p_next = replace(p_next,
+					pp[:1+nabs,:nxe] + \
+					vele[:1+nabs,:nxe]*dt/dz* \
+					(pp[1:2+nabs,:nxe]-pp[:1+nabs,:nxe]),
+					[0,1+nabs],[0,nxe])
 		# One-way equation (right part)
-		p = replace_3d(p,p[:nze,nxe-1-nabs:nxe,it] - \
+		p_next = replace(p_next,pp[:nze,nxe-1-nabs:nxe] - \
 					vele[:nze,nxe-1-nabs:nxe]*dt/dx* \
-					(p[:nze,nxe-1-nabs:nxe,it] - p[:nze,nxe-2-nabs:nxe-1,it]),
-					[0,nze],[nxe-1-nabs,nxe],it+1)
+					(pp[:nze,nxe-1-nabs:nxe] - pp[:nze,nxe-2-nabs:nxe-1]),
+					[0,nze],[nxe-1-nabs,nxe])
 		# One-way equation (left part)
-		p = replace_3d(p,p[:nze,:1+nabs,it] + \
+		p_next = replace(p_next,pp[:nze,:1+nabs] + \
 					vele[:nze,:1+nabs]*dt/dx* \
-					(p[:nze,1:2+nabs,it]-p[:nze,:1+nabs,it]),
-					[0,nze],[0,1+nabs],it+1)
-	
-	return p[next2:nze-next2,next2:nxe-next2,:]
+					(pp[:nze,1:2+nabs]-pp[:nze,:1+nabs]),
+					[0,nze],[0,1+nabs])
+		p_all = tf.concat([p_all,tf.expand_dims(p_next,-1)],-1)
+		# Update next state and save current state
+		pm = pp
+		pp = p_next
+
+	return p_all[next2:nze-next2,next2:nxe-next2,:]
+
 
 def simulate_obs(vel, wsrc, zxsrc, at, az, ax, next, zxrec):
 	"""
@@ -122,6 +126,16 @@ def simulate_obs(vel, wsrc, zxsrc, at, az, ax, next, zxrec):
 	for n in range(nrec):
 		d = replace_1d(d,p[zxrec[0,n], zxrec[1,n], :],n,[0,nt])
 	return d
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -157,24 +171,6 @@ def replace(tensor,arr,iz,ix):
     idx_to_replace(iz[0],iz[1],ix[0],ix[1]),
     tf.reshape(arr, [-1]))
 	return replaced
-
-def idx_to_replace_3d(z1,z2,x1,x2,t):
-	arr = []
-	for i in range(z1,z2):
-		for j in range(x1,x2):
-				arr.append([i,j,t]) 
-	return arr
-
-def replace_3d(tensor,arr,iz,ix,it):
-	"""
-	tensor: tensor to replace the elements
-	arr: the array to insert
-	iz,ix: the index of z and x
-	"""
-	return tf.tensor_scatter_nd_update(
-		tensor, 
-		idx_to_replace_3d(iz[0],iz[1],ix[0],ix[1],it),
-		tf.reshape(arr, [-1]))
 
 def idx_to_replace_1d(n,t1,t2):
   arr = []
