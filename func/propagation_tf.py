@@ -143,30 +143,29 @@ def simulate_obs(vel, wsrc, zxsrc, at, az, ax, next, zxrec):
 	nze  = nz + 2*next2
 	nxe  = nx + 2*next2
 	vele = tf.zeros([nze,nxe],dtype="float32")
- 
+
+	velnp = tf.convert_to_tensor(vel.numpy()) # creat velnp to stop recording
+	# Top and bottom
+	vele = replace(vele,tf.repeat([velnp[0,:]],next2,axis=0),
+									[0,next2],[next2,nxe-next2])
+	vele = replace(vele,tf.repeat([velnp[-1,:]],next2,axis=0),
+					[nze-next2,nze],[next2,nxe-next2]) 
+	# Left and right
+	vele = replace(vele,tf.transpose(tf.repeat([velnp[:,0]],next2,axis=0)),
+						[next2,nze-next2],[0,next2])
+	vele = replace(vele,tf.transpose(tf.repeat([velnp[:,-1]],next2,axis=0)),
+						[next2,nze-next2],[nxe-next2,nxe])
+	# Corners
+	vele = replace(vele,tf.fill([next2, next2], velnp[0,0]),
+					[0,next2],[0,next2])
+	vele = replace(vele,tf.fill([next2, next2], velnp[0,-1]),
+					[0,next2],[nxe-next2,nxe])
+	vele = replace(vele,tf.fill([next2, next2], velnp[-1,0]),
+					[nze-next2,nze],[0,next2])
+	vele = replace(vele,tf.fill([next2, next2], velnp[-1,-1]),
+					[nze-next2,nze],[nxe-next2,nxe])
 	# Central part
 	vele = replace(vele,vel,[next2,nze-next2],[next2,nxe-next2])
- 
-	# Top and bottom
-	vele = replace(vele,tf.repeat([vel[0,:]],next2,axis=0),
-								 [0,next2],[next2,nxe-next2])
-	vele = replace(vele,tf.repeat([vel[-1,:]],next2,axis=0),
-	               [nze-next2,nze],[next2,nxe-next2]) 
-	# Left and right
-	vele = replace(vele,tf.transpose(tf.repeat([vel[:,0]],next2,axis=0)),
-	                  [next2,nze-next2],[0,next2])
-	vele = replace(vele,tf.transpose(tf.repeat([vel[:,-1]],next2,axis=0)),
-	               		[next2,nze-next2],[nxe-next2,nxe])
-	# Corners
-	vele = replace(vele,tf.fill([next2, next2], vel[0,0]),
-	               [0,next2],[0,next2])
-	vele = replace(vele,tf.fill([next2, next2], vel[0,-1]),
-	               [0,next2],[nxe-next2,nxe])
-	vele = replace(vele,tf.fill([next2, next2], vel[-1,0]),
-	               [nze-next2,nze],[0,next2])
-	vele = replace(vele,tf.fill([next2, next2], vel[-1,-1]),
-	               [nze-next2,nze],[nxe-next2,nxe])
-	# vele = extend_model(vel,next2)
   	###############################################################
 	# Shift the source by next
 	p_all = tf.zeros([nze,nxe,2]) # All states wave field

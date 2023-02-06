@@ -57,4 +57,4 @@ def gaussian2d(ranges=[5, 10], variance=1, param=1, nx=[201, 201], mean=0):
 
     #Return the simulation (reshaped)
 
-    return simu.reshape(mesh.getGrid().getNXs()) + mean
+    return simu.reshape(mesh.getGrid().getNXs()) + mean, Qmat
