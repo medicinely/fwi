@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 
 
 def check_model(v, vmin=2000, vmax=3000, disp=False):
-    v[np.where(v > vmax)] = vmax
-    v[np.where(v < vmin)] = vmin
+    # v[np.where(v > vmax)] = vmax
+    # v[np.where(v < vmin)] = vmin
     velmin, velmax = np.min(v), np.max(v)
     # Check if the values are between vmin and vmax
     velmin = np.min(v)
