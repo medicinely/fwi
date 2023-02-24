@@ -20,10 +20,19 @@ To obtain the posterior distribution, we need to sample from the joint distribut
 
 The idea behind MCMC is to construct a Markov chain that has the joint distribution $P(\mathbf{m},\mathbf{d})$ as its stationary distribution. This means that if we run the Markov chain for long enough, the samples will be distributed according to the joint distribution.
 
-The most commonly used MCMC algorithm for seismic inversion is the Metropolis-Hastings algorithm. The algorithm proceeds as follows:
 
-Start with an initial guess $\mathbf{m}_0$ for the velocity model.
-Generate a proposal $\mathbf{m}^$ for the velocity model by sampling from a proposal distribution $Q(\mathbf{m}^|\mathbf{m}_i)$.
-Calculate the acceptance ratio $\alpha = min\left(1, \frac{P(\mathbf{m}^|\mathbf{d})Q(\mathbf{m}_i|\mathbf{m}^)}{P(\mathbf{m}_i|\mathbf
+In the context of Bayesian FWI, the acceptance probability for the proposed model (or velocity model) $\mathbf{m}^*$ based on the current model $\mathbf{m}$ can be expressed as:
+
+$$\alpha(\mathbf{m}^,\mathbf{m}) = \min\left(1, \frac{\pi(\mathbf{m}^|\mathbf{d})p(\mathbf{m}^)q(\mathbf{m}|\mathbf{m}^)}{\pi(\mathbf{m}|\mathbf{d})p(\mathbf{m})q(\mathbf{m}^*|\mathbf{m})}\right)$$
+
+where:
+
+$\pi(\mathbf{m}|\mathbf{d})$ is the posterior distribution of the model given the observed data $\mathbf{d}$.
+$p(\mathbf{m})$ is the prior distribution of the model.
+$q(\mathbf{m}|\mathbf{m}^*)$ is the proposal distribution for the current model given the proposed model.
+$\pi(\mathbf{m}^*|\mathbf{d})$ is the posterior distribution of the proposed model given the observed data.
+$p(\mathbf{m}^*)$ is the prior distribution of the proposed model.
+$q(\mathbf{m}^*|\mathbf{m})$ is the proposal distribution for the proposed model given the current model.
+The Metropolis-adjusted Langevin algorithm (MALA) is a variant of the Metropolis-Hastings algorithm that uses a Langevin diffusion process to generate proposals for the new state. The proposal distribution $q(\mathbf{m}^*|\mathbf{m})$ in MALA is guided by the gradient of the log-posterior distribution, resulting in more efficient and effective sampling compared to other proposal distributions such as random walk or Gaussian.
 
  
