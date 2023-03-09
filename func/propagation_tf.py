@@ -101,14 +101,6 @@ def prop2d_tf(vel,pwsrc,at,az,ax,next):
 
 
 
-
-
-
-
-
-
-
-
 def simulate_obs(vel, wsrc, zxsrc, at, az, ax, next, zxrec):
 	"""
 	2d wave propagation with multiple sources
