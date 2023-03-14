@@ -7,8 +7,6 @@ The goal is to obtain the posterior distribution of the velocity model by implem
 Full waveform inversion, Inverse problem, Variational Autoencoder (vae), Deep Learning
 
 
-
-# Formulas
 ## Reparametrization
 
 The reparametrizaion transform function $f$ is defined as:
@@ -42,11 +40,7 @@ $$= E_q[\log \frac{q(v)}{p(d_{obs}|v)p(v)}] + \log p(d_{obs})$$
 
 ### The objective function is defined as:
 
-$$\text{ELBO} = \mathbb{E}{q(v)}[\log p(d{obs}|v)] + \mathbb{E}{q(v)}[\log p(v)] - \mathbb{E}{q(v)}[\log q(v)] - \log p(d_{obs})\\
-= \mathbb{E}{q(v)}[\log p(d{obs}|v)] - \mathbb{E}{q(v)}[\log \frac{q(v)}{p(v)}]- C\\
-= \mathbb{E}{q(v)}[\log p(d{obs}|v)] - {KL}(q(v) || p(v))
-
-$$
+$$\text{ELBO} = \mathbb{E}{q(v)}[\log p(d{obs}|v)] + \mathbb{E}{q(v)}[\log p(v)] - \mathbb{E}{q(v)}[\log q(v)] - \log p(d_{obs})\\= \mathbb{E}{q(v)}[\log p(d{obs}|v)] - \mathbb{E}{q(v)}[\log \frac{q(v)}{p(v)}]- C\\= \mathbb{E}{q(v)}[\log p(d{obs}|v)] - {KL}(q(v) || p(v))$$
 
 >where $\log p(d_{obs}|v)$ is the log-likelihood of the data given the latent variables, $\log p(v)$ is the prior distribution over the latent variables, $\log q(v)$ is the log of the variational distribution, and $\log p(d_{obs})$ is a constant term that does not depend on $v$ and can be ignored during optimization.
 
