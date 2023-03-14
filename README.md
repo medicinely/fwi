@@ -54,7 +54,9 @@ $$ = \mathbb{E}{q(v)}[\log p(d{obs}|v)] - {KL}(q(v) || p(v))$$
 
 ## Variational Parameters
 The Gaussian variational family is defined by:
-$$ q(u) = \mathcal{N}(u | \mu, \Sigma) $$ 
+$$ 
+q(u) = \mathcal{N}(u | \mu, \Sigma) 
+$$ 
 >where $u$ represents the model parameters, and $\mu$ and $\Sigma$ are the variational mean and covariance that approximate the true posterior distribution of $u$.
 
 To make the computation of the posterior tractable, we use a factorized Gaussian approximation, which assumes that the different elements of $u$ are independent and have variances determined by the values in $\omega$. 
