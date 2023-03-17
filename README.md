@@ -1,10 +1,15 @@
-# Quantifying Uncertainties in Variational Bayesian Machine Learning: Application to 2D Seismic Imaging
+---
+title: Quantifying Uncertainties in Variational Bayesian Machine Learning - Application to 2D Seismic Imaging
+date: today
+author: me
+---
 
-The goal is to obtain the posterior distribution of the velocity model by implementing a variational bayesian using the gradient decent.
+## **Quantifying Uncertainties in Variational Bayesian Machine Learning: Application to 2D Seismic Imaging**
 
+Objective of the project: to obtain the posterior distribution of the velocity model by implementing a variational bayesian using the gradient decent
 
-### Keywords:
-Full waveform inversion, Inverse problem, Variational Autoencoder (vae), Deep Learning
+***Keywords:***
+>Full waveform inversion, Inverse problem, Variational Autoencoder (vae), Deep Learning
 
 
 ## Reparametrization
@@ -58,12 +63,12 @@ The Gaussian variational family is defined by:
 $$ q(u) = \mathcal{N}(u | \mu, \Sigma) $$ 
 >where $u$ represents the model parameters, and $\mu$ and $\Sigma$ are the variational mean and covariance that approximate the true posterior distribution of $u$.
 
-To make the computation of the posterior tractable, we use a factorized Gaussian approximation, which assumes that the different elements of $u$ are independent and have variances determined by the values in $\omega$. 
+To make the computation of the posterior tractable, we can use a factorized Gaussian approximation, which assumes that the different elements of $u$ are independent and have variances determined by the values in $\omega$. 
 
 $$ q(u) = \mathcal{N}(u | \mu, \text{diag}(\exp(\omega)^2)) $$
 >where the function $\exp(\omega)$ transforms the unconstrained values of $\omega$ to positive values, which represent the standard deviations of the elements of $u$. Finally, taking the square of these standard deviations results in the diagonal matrix $\text{diag}(\exp(\omega)^2)$, which represents the covariance matrix of $q(u)$.
 
-In factorized Gaussian variational approximation (also known as mean field approximation), the joint distribution of parameters is approximated as a product of independent univariate Gaussian distributions, which effectively neglects any correlation between parameters. This simplification allows for easier computation and has been found to be effective in practice for high-dimensional problems, although it may not capture the full complexity of the true posterior distribution.
+"In factorized Gaussian variational approximation (also known as mean field approximation), the joint distribution of parameters is approximated as a product of independent univariate Gaussian distributions, which effectively neglects any correlation between parameters. This simplification allows for easier computation and has been found to be effective in practice for high-dimensional problems, although it may not capture the full complexity of the true posterior distribution."
 
 ## Gradients
 The gradient of the ELBO with respect to the variational parameters $\mu$ and $\omega$ can be computed using the following formulas:
@@ -72,11 +77,8 @@ $$ \nabla_{\mu} \text{ELBO} = \frac{\partial}{\partial \mu} \mathbb{E}q [\log p(
 
 The gradient of the ELBO with respect to the unconstrained parameters $\omega$ can be computed using the chain rule:
 
-$$ \nabla_{\omega} \text{ELBO} = \frac{\partial \text{ELBO}}{\partial \text{diag}(\Sigma)} =  \frac{\partial \text{ELBO}}{\partial \text{diag}(\exp(\omega)^2)}\frac{\partial \text{diag}(\exp(\omega)^2)}{\partial \omega} \\= \frac{\partial}{\partial \omega} \mathbb{E}q [\log p(d{obs} | u)] - \nabla_{\omega} \text{KL}(q(u) || p(u))$$
+$$ \nabla_{\omega} \text{ELBO} = \frac{\partial \text{ELBO}}{\partial \text{diag}(\Sigma)} =  \frac{\partial \text{ELBO}}{\partial \text{diag}(\exp(\omega)^2)}\frac{\partial \text{diag}(\exp(\omega)^2)}{\partial \omega}$$
 
-
-where $\nabla_{\text{diag}(\Sigma)} \text{ELBO}$ can be computed as above, and $\frac{\partial \text{diag}(\Sigma)}{\partial \Sigma}$ is simply a diagonal matrix with the diagonal entries equal to 1.
-
-
+$$ = \frac{\partial}{\partial \omega} \mathbb{E}q [\log p(d{obs} | u)] - \nabla_{\omega} \text{KL}(q(u) || p(u))$$
 
 >where $\nabla_{\mu}$ and $\nabla_{\omega}$ represent the gradients with respect to $\mu$ and $\omega$, respectively. The first term in each formula represents the gradient of the expected log-likelihood, which can be estimated using Monte Carlo integration. The second term represents the gradient of the KL divergence, which has a closed-form expression.
