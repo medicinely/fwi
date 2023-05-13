@@ -211,6 +211,8 @@ def simulate_obs(vel, wsrc, zxsrc, at, az, ax, next, zxrec):
 		d = replace_1d(d,p[zxrec[0,n], zxrec[1,n], :],n,[0,nt])
 	return d
 
+
+
 # Code to replace tensor elements in tensorflow
 
 def idx_to_replace(z1,z2,x1,x2):
