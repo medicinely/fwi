@@ -2,9 +2,11 @@
 Functions for 2D wave propagation
 """
 import numpy as np
-# import cupy as cp
+import cupy as cp
 from math import pi, sqrt, exp, sin, cos
 
+precision = np.float32
+precision_gpu = cp.float32
 
 def defmodel(vmin, vmax, fmax, nz, nx, nt, izsrc=[100], ixsrc=[10],ext=100):
 	"""
@@ -77,7 +79,7 @@ def extend_model(vel,next):
 	nx   = np.shape(vel)[1]
 	nze  = nz + 2*next
 	nxe  = nx + 2*next
-	vele = np.zeros([nze,nxe])
+	vele = np.zeros([nze,nxe], dtype=precision)
 	# Central part
 	vele[next:nze-next,next:nxe-next] = vel
 	# Top and bottomB
@@ -122,8 +124,8 @@ def prop2d_cpu(pwsrc,vel,at,az,ax,next):
 	nxe  = nx + 2*next2
 	vele = extend_model(vel,next2)
 	# Shift the source by next
-	p     = np.zeros([nze,nxe,nt])
-	pm    = np.zeros([nze,nxe]) # Previous wave field
+	p     = np.zeros([nze,nxe,nt], dtype=precision)
+	pm    = np.zeros([nze,nxe], dtype=precision) # Previous wave field
 	for it in range(1,nt-1): # From 1 to nt-1
 		# sys.stdout.write(".")
 		# sys.stdout.flush()
@@ -193,8 +195,8 @@ def prop2d_gpu(pwsrc,vel,at,az,ax,next):
 	vele = extend_model(vel,next2)
 	vele = cp.asarray(vele)
 	# Shift the source by next
-	p     = cp.zeros([nze,nxe,nt])
-	pm    = cp.zeros([nze,nxe]) # Previous wave field
+	p     = cp.zeros([nze,nxe,nt], dtype=precision_gpu)
+	pm    = cp.zeros([nze,nxe], dtype=precision_gpu) # Previous wave field
 	for it in range(1,nt-1): # From 1 to nt-1
 		# Second-order derivatives in z and x
 		# + source term
