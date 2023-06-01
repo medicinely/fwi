@@ -47,7 +47,6 @@ def J(vel,d_obs,wsrc,zxsrc,zxrec,at,az,ax,next,device):
 	d = p_fwd[zxrec[0], zxrec[1], :]
 	residual = d - d_obs
 	J = 0.5 * np.sum(residual ** 2) # Residual is the half of the L2 norm square
-	# print("J = %.5f" % J)
 
 	return J
 
