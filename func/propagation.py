@@ -148,7 +148,7 @@ def prop2d_cpu(pwsrc,vel,at,az,ax,next):
 		pm = pp
 
 		# One-way equation (bottom part)
-		p[nze-1-nabs:nze,:nxe,it+1] = p[nze-1-nabs:nze,:nxe,it] - \
+		p[nze-1-nabs:nze,:nxe,it+1] = pp[nze-1-nabs:nze,:nxe,it] - \
 			vele[nze-1-nabs:nze,:nxe]*dt/dz* \
 			(p[nze-1-nabs:nze,:nxe,it]-p[nze-2-nabs:nze-1,:nxe,it])
 		# One-way equation (top part)

@@ -5,8 +5,10 @@ import numpy as np
 import scipy.sparse as sp
 # import cupy as cp
 from math import pi, sqrt, exp, sin, cos
+import matplotlib.pyplot as plt
 
-precision = np.float32
+
+precision = np.float64
 
 
 def defmodel(vmin, vmax, fmax, nz, nx, nt, izsrc=[100], ixsrc=[10],ext=100):
@@ -140,6 +142,11 @@ def prop2d(wsrc, zxsrc, zxrec, vel, at, az, ax, next, device='cpu'):
 		nxe  = nx + 2*next2
 		vele = extend_model(vel,next2)
 
+		# plt.imshow(vele)
+		# plt.colorbar()
+		# plt.show()
+
+
 		# Shift the source by next
 		asrc = np.zeros([nze-2*nabs-2,nxe-2*nabs-2], dtype=precision)
 		pm    = np.zeros([nze,nxe], dtype=precision) # Previous wave field
@@ -170,20 +177,19 @@ def prop2d(wsrc, zxsrc, zxrec, vel, at, az, ax, next, device='cpu'):
 		# Create the Transform matrix T using wave equation
 		T = sp.diags(fact.flatten(), 0, format='csr').dot(L) + sp.diags(2*np.ones(size), 0, format='csr')
 
-		d_obs = [np.zeros(zxrec.shape[1])]
+		# d_obs = [np.zeros(zxrec.shape[1])]
 		p = [np.zeros((nz,nx))]
+		p.append(np.zeros((nz,nx)))
 
 		for it in range(1,nt-1): # From 1 to nt-1
 			pt = pp.copy()
-			# ptwsrc = np.zeros((nz,nx))
-			# ptwsrc[zxsrc[0,:], zxsrc[1,:]] = extend_wsrc[it]
-			# asrc[next:-next,next:-next] = ptwsrc[1:-1,1:-1]      
 			asrc[next:-next,next:-next] = pwsrc[1:-1,1:-1,it]		#	0.0002s
 			pp[1+nabs:-1-nabs,1+nabs:-1-nabs] = \
 							T.dot(pt[nabs:-nabs, nabs:-nabs].flatten()).reshape(nzz, nxx)[1:-1, 1:-1]   \
 							- pm[1+nabs:-1-nabs,1+nabs:-1-nabs]\
 							+ asrc * fact[1:-1, 1:-1]   
-			pm = pt
+			
+			pm = pt.copy()
 
 			# One-way equation (bottom part)
 			pp[nze-1-nabs:nze,:nxe] = pt[nze-1-nabs:nze,:nxe] - \
@@ -201,14 +207,11 @@ def prop2d(wsrc, zxsrc, zxrec, vel, at, az, ax, next, device='cpu'):
 			pp[:nze,:1+nabs] = pt[:nze,:1+nabs] + \
 							vele[:nze,:1+nabs]*dt/dx* \
 							(pt[:nze,1:2+nabs]-pt[:nze,:1+nabs])
-
-			d_obs.append(pp[next2:nze-next2,next2:nxe-next2][zxrec[0], zxrec[1]])
+			
 			p.append(pp[next2:nze-next2,next2:nxe-next2].copy())
 
-		d_obs.append(np.zeros(zxrec.shape[1]))
-		d_obs = np.array(d_obs).T
-		p.append(np.zeros((nz,nx)))
 		p = np.moveaxis(np.array(p), 0, -1)
+		d_obs = p[zxrec[0], zxrec[1], :]
 
 	return p, d_obs
 
