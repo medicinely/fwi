@@ -18,7 +18,7 @@ def defmodel(vmin, vmax, fmax, nz, nx, nt, izsrc=[100], ixsrc=[10],ext=100):
 	Output: axis az, ax, at
 	"""
 	# Key parameters
-	vmin, vmax, fmax = 2000.,3000.,25 
+	# vmin, vmax, fmax = 2000.,3000.,25 
 	# Deduce dzmax and dtmax (in 1D)
 	dzmax, dxmax, dtmax = param2grid(vmin, vmax, fmax)
 	dz = dzmax
@@ -65,7 +65,7 @@ def defsrc(fmax, dt):
 	Advantage: the frequency content of that shape is controlled by the fmax argument
 	"""
 	fc   = fmax / 2.5    # Central frequency
-	ns2  = int(2/fc/dt)
+	ns2  = int(1.2/fc/dt)
 	ns   = 1 + 2*ns2     # Size of the source
 	wsrc = np.zeros(ns)
 	aw   = np.zeros(ns)  # Time axis
