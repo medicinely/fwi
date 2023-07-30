@@ -158,7 +158,7 @@ def simulate_obs(vel, wsrc, zxsrc, at, az, ax, next, zxrec):
 					[nze-next2,nze],[nxe-next2,nxe])
 	# Central part
 	vele = replace(vele,vel,[next2,nze-next2],[next2,nxe-next2])
-  	###############################################################
+  ###############################################################
 	# Shift the source by next
 	p_all = tf.zeros([nze,nxe,2]) # All states wave field
 	pm = tf.zeros([nze,nxe]) # Previous state wave field
