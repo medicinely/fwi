@@ -412,7 +412,7 @@ def adjoint_gradient(vel,d_obs,wsrc,zxsrc,zxrec,at,az,ax,next,device):
 		grad = 2/vel**3  * np.sum(p_back * p_dt_dt, axis=1) # G.shape same as vel
 		grads += grad
 
-	return grads.flatten()
+	return grads.flatten()/nsrc
 
 def misfit(vel,d_obs,wsrc,zxsrc,zxrec,at,az,ax,next,device):
 	nsrc = zxsrc.shape[1]
@@ -426,4 +426,4 @@ def misfit(vel,d_obs,wsrc,zxsrc,zxrec,at,az,ax,next,device):
 			J = 0.5 * np.sum(residual ** 2) # Residual is the half of the L2 norm square
 			loss += J
 
-	return loss
+	return loss/nsrc
